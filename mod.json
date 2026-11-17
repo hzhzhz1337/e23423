@@ -1,0 +1,1045 @@
+{
+    "geode": "5.10.1",
+    "gd": {
+        "win": "2.2081",
+        "android": "2.2081",
+        "ios": "2.2081"
+    },
+    "id": "tristi.frame-window",
+    "name": "Razy's Frame Windows",
+    "version": "v1.6.0",
+    "developer": "tristi",
+    "description": "Measures how many frames you actually had for every click by re-simulating your run - in every gamemode.",
+    "tags": [
+        "gameplay",
+        "utility"
+    ],
+    "resources": {
+        "files": [
+            "resources/ding.wav",
+            "resources/boom.wav",
+            "resources/bell-1.wav",
+            "resources/bell-2.wav",
+            "resources/classic.wav",
+            "resources/fonts/Inter-Regular.ttf",
+            "resources/fonts/Inter-SemiBold.ttf",
+            "resources/fonts/Inter-LICENSE.txt"
+        ],
+        "sprites": [
+            "resources/button.png"
+        ],
+        "fonts": {
+            "nanFont": {
+                "path": "resources/Pusab.otf",
+                "size": 64
+            },
+            "nanFontOutline": {
+                "path": "resources/Pusab.otf",
+                "size": 64,
+                "outline": 4
+            },
+            "nanFontThin": {
+                "path": "resources/Pusab.otf",
+                "size": 64,
+                "outline": 2
+            }
+        }
+    },
+    "settings": {
+        "early-stop": {
+            "name": "Stop trials back on the path",
+            "description": "A trial ends as soon as the player is exactly where the recording had him again, after every changed input. Everything after that would run the same, so the result does not change. Saves time on most clicks.",
+            "type": "bool",
+            "default": true
+        },
+        "menu-layout": {
+            "name": "Menu layout",
+            "description": "Tabs shows a bigger menu with tabs at the top (Counter, Macro, Look, Settings) and the counts of the last analysis. Classic is the small menu with one list of buttons. The style (Glass and so on) stays the same.",
+            "type": "string",
+            "default": "Tabs",
+            "one-of": [
+                "Tabs",
+                "Classic"
+            ]
+        },
+        "analysis-preset": {
+            "name": "Analysis preset",
+            "description": "Sets the analysis options in one go. Fast checks only the tightest clicks again, Normal is the default, Accurate measures without shortcuts before each click, Thorough also lets you correct two clicks after each one.",
+            "type": "string",
+            "default": "Normal",
+            "one-of": [
+                "Fast",
+                "Normal",
+                "Accurate",
+                "Thorough"
+            ]
+        },
+        "recheck-narrow": {
+            "name": "Recheck tight clicks",
+            "description": "After the analysis, clicks with a small window are measured again from much further back and without skipping anything. Costs a few seconds, makes the tight ones exact.",
+            "type": "bool",
+            "default": true
+        },
+        "recheck-max": {
+            "name": "Recheck clicks up to",
+            "description": "Largest window that still gets the recheck.",
+            "type": "int",
+            "default": 3,
+            "min": 1,
+            "max": 8
+        },
+        "scan-from": {
+            "name": "Analyse from (%)",
+            "description": "Only clicks from this point of the recording on are measured. 0 is the start.",
+            "type": "float",
+            "default": 0.0,
+            "min": 0.0,
+            "max": 100.0
+        },
+        "scan-to": {
+            "name": "Analyse up to (%)",
+            "description": "Only clicks up to this point of the recording are measured. 100 is the end.",
+            "type": "float",
+            "default": 100.0,
+            "min": 0.0,
+            "max": 100.0
+        },
+        "tps": {
+            "name": "Recording TPS",
+            "description": "Physics ticks per second while recording. 240 is normal Geometry Dash. 360 or 480 split every frame into smaller steps, so windows are measured more finely (a bit like Click Between Frames) - rings and the overview then count frames at that TPS (at 480, 2 frames = 1 normal frame). Colours and sounds follow the real tightness, so a 4 at 480 TPS looks like a 2 at 240. Saved macros always play back and analyse at the TPS they were recorded with.",
+            "type": "string",
+            "default": "240",
+            "one-of": [
+                "240",
+                "360",
+                "480"
+            ]
+        },
+        "show-labels": {
+            "name": "Show number in level",
+            "description": "Displays the window size right at the player during playback.",
+            "type": "bool",
+            "default": true
+        },
+        "ui-style": {
+            "name": "UI style",
+            "description": "Classic looks like normal GD menus. Glass gives the mod's menus dark see-through panels and flat buttons, similar to Silicate. Reopen the menu after changing it.",
+            "type": "string",
+            "default": "Glass",
+            "one-of": [
+                "Classic",
+                "Glass"
+            ]
+        },
+        "ring-colors": {
+            "name": "Ring colors",
+            "description": "Spectrum gives every window size its own colour, from red at 1 frame over white at 4 to deep blue at 10. Classic uses four colour groups: red, orange, yellow and green.",
+            "type": "string",
+            "default": "Spectrum",
+            "one-of": [
+                "Spectrum",
+                "Classic"
+            ]
+        },
+        "ring-style": {
+            "name": "Ring style",
+            "description": "Compact rings are a bit smaller and slightly thicker. Default keeps the larger, thinner rings.",
+            "type": "string",
+            "default": "Compact",
+            "one-of": [
+                "Compact",
+                "Default"
+            ]
+        },
+        "label-position": {
+            "name": "Number position",
+            "description": "Beside puts the number next to the ring (press on the left, release on the right). Above puts it above the ring for presses and below for releases.",
+            "type": "string",
+            "default": "Beside",
+            "one-of": [
+                "Beside",
+                "Above"
+            ]
+        },
+        "ring-size": {
+            "name": "Ring size",
+            "description": "Size of the ring at each click. 1.0 is the normal size; the thickness stays the same (see Ring style).",
+            "type": "float",
+            "default": 1.0,
+            "min": 0.6,
+            "max": 2.4,
+            "control": {
+                "slider": true
+            }
+        },
+        "number-size": {
+            "name": "Number size",
+            "description": "Size of the number next to each ring. 1.0 is the normal size.",
+            "type": "float",
+            "default": 1.0,
+            "min": 0.4,
+            "max": 1.5,
+            "control": {
+                "slider": true
+            }
+        },
+        "overview-size": {
+            "name": "Overview size",
+            "description": "Size of the statistics in the top left. 1.0 is the original size.",
+            "type": "float",
+            "default": 1.15,
+            "min": 0.6,
+            "max": 2.0,
+            "control": {
+                "slider": true
+            }
+        },
+        "practice-fix": {
+            "name": "Practice fix",
+            "description": "Saves the exact player state after every practice respawn while recording and restores it during playback and analysis. Makes long practice recordings replay correctly. Only works for recordings made with this version.",
+            "type": "bool",
+            "default": true
+        },
+        "label-time": {
+            "name": "Display time (seconds)",
+            "description": "How long the number stays on screen.",
+            "type": "float",
+            "default": 2.0,
+            "min": 0.2,
+            "max": 10.0,
+            "control": {
+                "slider": true
+            }
+        },
+        "speedhack": {
+            "name": "Speedhack",
+            "description": "Game speed while recording. 0.5 is half speed, and the audio follows. Playback and analysis always run at 1.0.",
+            "type": "float",
+            "default": 1.0,
+            "min": 0.1,
+            "max": 3.0,
+            "control": {
+                "slider": true
+            }
+        },
+        "analysis-show-level": {
+            "name": "Show level during analysis",
+            "description": "Turning this off makes the analysis noticeably faster, because GD does not have to draw anything.",
+            "type": "bool",
+            "default": false
+        },
+        "adaptive-budget": {
+            "name": "Smart compute time",
+            "description": "The analysis gets a share of each frame instead of a fixed time. Counts faster on levels that already lag, without making them feel worse. Turn off to use 'Compute time per frame' instead.",
+            "type": "bool",
+            "default": true
+        },
+        "budget-share": {
+            "name": "Smart: share of each frame (%)",
+            "description": "How much of each frame the analysis can use with Smart compute time. 75 means three times as long computing as drawing.",
+            "type": "int",
+            "default": 75,
+            "min": 10,
+            "max": 95
+        },
+        "budget-min-ms": {
+            "name": "Smart: least compute time (ms)",
+            "description": "The shortest the analysis computes per frame with Smart compute time. 40 is never slower than before.",
+            "type": "int",
+            "default": 60,
+            "min": 5,
+            "max": 250
+        },
+        "budget-max-ms": {
+            "name": "Smart: most compute time (ms)",
+            "description": "The longest the analysis computes per frame with Smart compute time. Stops long freezes. Also used when the level is hidden during analysis.",
+            "type": "int",
+            "default": 400,
+            "min": 20,
+            "max": 500
+        },
+        "analysis-budget-ms": {
+            "name": "Compute time per frame (ms)",
+            "description": "Only when Smart compute time is off: how long each frame is spent simulating. 40 keeps the analysis watchable at around 25 FPS, 150 makes it roughly three times faster but very choppy.",
+            "type": "int",
+            "default": 60,
+            "min": 10,
+            "max": 250,
+            "control": {
+                "slider": true
+            }
+        },
+        "analysis-speed": {
+            "name": "Analysis time-lapse",
+            "description": "How much the time between runs is sped up. Higher is faster, but very high values can stutter.",
+            "type": "float",
+            "default": 20.0,
+            "min": 1.0,
+            "max": 40.0,
+            "control": {
+                "slider": true
+            }
+        },
+        "fast-analysis": {
+            "name": "Fast analysis (save points)",
+            "description": "Trials start from an automatic save point shortly before each click instead of from 0%. Much faster for long levels. Every trial is checked against the original run - if anything differs, that click is measured from 0% instead, so the numbers stay the same.",
+            "type": "bool",
+            "default": true
+        },
+        "instant-restart": {
+            "name": "Instant restart",
+            "description": "Starts the next trial right away instead of waiting for GD's death animation and respawn. Several trials fit into one frame, so the analysis is a lot faster. Needs 'Fast analysis'. Turn it off if an analysis behaves strangely.",
+            "type": "bool",
+            "default": true
+        },
+        "fast-stepping": {
+            "name": "Fast stepping",
+            "description": "During the analysis the game skips updating what is on screen while it replays the part before the shifted click. That part is checked step by step against your run anyway. From the shifted click on everything runs like at high FPS. About 10% faster. If a trial drifts from your run because of it, that click is measured again without it. Turn it off if a level with lots of enter effects gives odd results.",
+            "type": "bool",
+            "default": true
+        },
+        "measure-releases": {
+            "name": "Measure releases too",
+            "description": "In wave every release is its own click and gets its own window. Doubles the analysis time - can be turned off for pure cube levels.",
+            "type": "bool",
+            "default": true
+        },
+        "measure-time-offset": {
+            "name": "Also measure as time offset",
+            "description": "Additionally measures each click as if everything after it shifted along - the more realistic reading for wave and ship. The more favourable of the two numbers wins. Doubles the analysis time.",
+            "type": "bool",
+            "default": true
+        },
+        "adapt-next": {
+            "name": "Let the next input adapt (frames)",
+            "description": "Also measures each click as if you corrected your next input afterwards - like checking it with a frame stepper and trajectory. Matters most for wave and ship. Tries up to this many frames earlier or later. 0 turns it off. Needs 'Also measure as time offset'.",
+            "type": "int",
+            "default": 6,
+            "min": 0,
+            "max": 12,
+            "control": {
+                "slider": true
+            }
+        },
+        "orb-follow-through": {
+            "name": "Same orbs only",
+            "description": "A shifted click only counts if the same orbs still get hit. Without this a shift could survive by skipping an orb or taking a different one, which makes windows too big. Costs almost no time.",
+            "type": "bool",
+            "default": true
+        },
+        "robot-setups": {
+            "name": "Robot: try other hold lengths",
+            "description": "A robot click also counts if a different hold length or the next click timing makes it survive. Much more accurate for robot clicks, a bit slower on those clicks only. Needs 'Also measure as time offset'.",
+            "type": "bool",
+            "default": true
+        },
+        "alignment-check": {
+            "name": "Alignment check",
+            "description": "A shifted click only counts if you end up back on your recorded path afterwards (at most 1/6 block off), not just alive. Catches clicks that survive but leave you misaligned for what comes next. Stricter, some windows get smaller. No extra time.",
+            "type": "bool",
+            "default": false
+        },
+        "test-click": {
+            "name": "Click test",
+            "description": "To check one click by eye. Enter its frame and a shift, for example 5784 +2. Works for presses and releases. The next playback moves that press and its release (or only that release) to the whole frame plus the shift and stops all corrections from there on, exactly like the analysis does. Leave empty for normal playback.",
+            "type": "string",
+            "default": ""
+        },
+        "check-without-cbf": {
+            "name": "Mark CBF-only clicks",
+            "description": "Clicks recorded with Click Between Frames are also tested on the whole frames before and after. If neither survives, the number gets 'CBF' next to it - that click is only possible with CBF. Costs two trials per CBF click.",
+            "type": "bool",
+            "default": true
+        },
+        "try-death-frame": {
+            "name": "Precise corrections",
+            "description": "When the next input may adapt (Let the next input adapt, Room per input), it is also tried on the exact frame where the run would die. That frame can still save the run. Makes tight spam much more accurate, costs almost no time. Analyse again after changing it.",
+            "type": "bool",
+            "default": true
+        },
+        "entry-sweep": {
+            "name": "Re-test with the click before moved (slow)",
+            "description": "Measures tight clicks (3 frames or less) again with the click before at the early and late edge of its own window. The widest result counts. About 3x slower on those clicks. Not used together with decimal windows.",
+            "type": "bool",
+            "default": false
+        },
+        "thorough-correction": {
+            "name": "Thorough (not recommended)",
+            "description": "Also measures each click as if you fixed your next two inputs afterwards and then played on exactly like the recording - like getting back on your path with a frame stepper. In tests it did not change any window, it only makes the analysis a lot slower. Uses the range of 'Let the next input adapt'. Analyse again after turning it on.",
+            "type": "bool",
+            "default": false
+        },
+        "pathfind-step": {
+            "name": "Pathfinder precision (frames)",
+            "description": "The pathfinder decides every this many frames (at 240 TPS) whether to hold. Smaller finds tighter paths like wave gaps but searches longer.",
+            "type": "int",
+            "default": 2,
+            "min": 1,
+            "max": 10
+        },
+        "pathfind-min-hold": {
+            "name": "Pathfinder shortest hold (frames)",
+            "description": "In wave and ship the pathfinder holds and lets go for at least this many frames (at 240 TPS), like a human would. Only where nothing else works it goes shorter. 0 turns it off and allows very fast spam.",
+            "type": "int",
+            "default": 8,
+            "min": 0,
+            "max": 30
+        },
+        "survive-clicks": {
+            "name": "Check distance in inputs",
+            "description": "A trial only has to survive until shortly after this many further inputs that change the path - in wave and ship that includes releases, in cube only clicks. 1 checks each click locally, like judging it with a trajectory. Higher values also require the run after it to still work out. 0 disables it.",
+            "type": "int",
+            "default": 1,
+            "min": 0,
+            "max": 10,
+            "control": {
+                "slider": true
+            }
+        },
+        "survive-frames": {
+            "name": "Check distance in frames",
+            "description": "How many frames a trial has to survive after the click. Small measures how tight the click itself is, large measures whether the whole run still works out. 240 frames is one second.",
+            "type": "int",
+            "default": 120,
+            "min": 10,
+            "max": 960,
+            "control": {
+                "slider": true
+            }
+        },
+        "exact-scan": {
+            "name": "Gapless check",
+            "description": "Tests every shift one by one instead of halving. More accurate, because it does not assume a window has no gaps - but slower for large windows.",
+            "type": "bool",
+            "default": true
+        },
+        "cbf-decimals": {
+            "name": "Decimal windows (CBF)",
+            "description": "With Click Between Frames you can click between two frames. This measures the edges of a window more finely and shows it with decimals - a hard 1-frame click might really be 0.45. Costs about 10 extra trials per click, only for the sizes set below. 240 TPS recordings only. Analyse again after turning it on.",
+            "type": "bool",
+            "default": false
+        },
+        "cbf-round-down": {
+            "name": "Decimals: round down",
+            "description": "With decimal windows a click counts as the whole number below it, so 3.4 frames counts as a 3 frame for the ring colour and the overview. Turn off to count it like the whole frame result.",
+            "type": "bool",
+            "default": true
+        },
+        "cbf-ranges": {
+            "name": "Overview in CBF ranges",
+            "description": "Counts clicks in ranges like NaN for CBF: 10+, 8-10, 6-8, 5-6, 4-5, 3-4, 2-3, 1-2 and 0-1. Uses the decimal windows, so turn on Decimal windows (CBF) too. Macros without decimals show the normal overview.",
+            "type": "bool",
+            "default": false
+        },
+        "spam-room": {
+            "name": "Spam: room per input (not recommended)",
+            "description": "In wave and ship spam the next input may correct up to 12 frames during the analysis, so a click shows how much room it had instead of how exact it was. In a straight corridor turning earlier works if you play on accordingly, in a zigzag tunnel it still hits the wall, so tight parts stay tight. Makes spam parts slower to analyse. Needs 'Also measure as time offset'. Rooms above 'Largest window shown' are hidden. Analyse again after changing it.",
+            "type": "bool",
+            "default": false
+        },
+        "spam-walls": {
+            "name": "Spam: room wall to wall (test)",
+            "description": "Test. In wave spam each input shows how many frames it takes to fly from one wall to the other at that spot: once only holding until the wall, once only releasing until the wall, added up. In an even corridor every input gets the same number, no matter how you clicked. It measures the corridor, not how exact the click had to be. Replaces 'room per input' for wave spam. At tight spots or where the spam ends (the wave flies further than one zigzag) the input is measured normally instead. Ship spam is measured as before. Analyse again after changing it.",
+            "type": "bool",
+            "default": false
+        },
+        "cbf-decimals-max": {
+            "name": "Decimals up to window size",
+            "description": "Which window sizes get a decimal number. 1 = only 1-frame clicks (e.g. 0.45), 3 = everything up to 3 frames. Larger windows stay whole numbers and cost no extra time.",
+            "type": "int",
+            "default": 1,
+            "min": 1,
+            "max": 10,
+            "control": {
+                "slider": true
+            }
+        },
+        "cbf-decimal-places": {
+            "name": "Decimal places",
+            "description": "How many digits after the point decimal windows show: 2 = 0.45, 4 = 0.4565. More digits are measured more finely - each extra digit costs about 3 more trials per edge. Analyse again after changing.",
+            "type": "int",
+            "default": 2,
+            "min": 1,
+            "max": 4,
+            "control": {
+                "slider": true
+            }
+        },
+        "show-overview": {
+            "name": "Show overview",
+            "description": "Statistics in the top left: how often each window size occurred, from 9-10 down to 1.",
+            "type": "bool",
+            "default": true
+        },
+        "nan-style": {
+            "name": "NaN GD style",
+            "description": "Looks like the frame window videos by NaN GD: overview with the groups 9-12, 7-8, 5-6, 4, 3, 2, 1 in their colours, precision L* bottom left and a title card before playback. Counts up to 12 frames - analyse again if your largest window was lower.",
+            "type": "bool",
+            "default": false
+        },
+        "nan-intro": {
+            "name": "NaN style: title card",
+            "description": "Shows the black title card with level name and legend before playback starts. The level waits until it fades out.",
+            "type": "bool",
+            "default": true
+        },
+        "nan-subtitle": {
+            "name": "NaN style: subtitle",
+            "description": "Second line on the title card under the level name, e.g. \"Top 1\" or \"Nerfed Update\". Leave empty for none.",
+            "type": "string",
+            "default": ""
+        },
+        "nan-intro-time": {
+            "name": "NaN style: title card time (s)",
+            "description": "How long the title card stays before playback starts.",
+            "type": "float",
+            "default": 4.0,
+            "min": 1.0,
+            "max": 10.0,
+            "control": {
+                "slider": true
+            }
+        },
+        "show-progress-time": {
+            "name": "Show precision (L*)",
+            "description": "Bottom left during playback, like NaN GD: the precision L* (sigma per second) you need to beat the level so far in 24 hours on average, and above it how much of the whole level's L* is reached (in percent). Calculated from the measured frame windows (NaNDL model, normal distribution).",
+            "type": "bool",
+            "default": false
+        },
+        "show-ms-hz": {
+            "name": "Show ms and Hz",
+            "description": "Shows the window of the last click under the overview in milliseconds and as the frame rate you need to hit it safely (2 frames at 240 TPS = 8.33ms = 120Hz).",
+            "type": "bool",
+            "default": false
+        },
+        "ms-hz-position": {
+            "name": "ms and Hz position",
+            "description": "Under the overview, or in the top right (ms in the colour of the window, Hz in white).",
+            "type": "string",
+            "default": "Under overview",
+            "one-of": [
+                "Under overview",
+                "Top right"
+            ]
+        },
+        "show-cbf-window": {
+            "name": "Show window with CBF",
+            "description": "Adds a line like (3.798) w/ CBF next to ms and Hz for clicks of 4 frames and more. Needs CBF decimals and a CBF recording. Set 'Decimals up to window size' high enough, otherwise larger clicks have no decimal.",
+            "type": "bool",
+            "default": false
+        },
+        "alignment-comments": {
+            "name": "Alignment comments",
+            "description": "Shows a comment like 'Can be FW1-2 but 75% of the time it's a FW2' shortly before a click in playback. A window of 1.75 frames gives 1 or 2 whole frames depending on where your frames land. Needs CBF decimals.",
+            "type": "bool",
+            "default": false
+        },
+        "alignment-comment-min": {
+            "name": "Comments from window",
+            "description": "Only comment on clicks that can be this many frames or more.",
+            "type": "int",
+            "default": 1,
+            "min": 1,
+            "max": 12,
+            "control": {
+                "slider": false
+            }
+        },
+        "alignment-comment-max": {
+            "name": "Comments up to window",
+            "description": "Only comment on clicks that can be this many frames or less. With 2 and 3 you only see comments on clicks that can be 2 or 3 frames.",
+            "type": "int",
+            "default": 3,
+            "min": 1,
+            "max": 12,
+            "control": {
+                "slider": false
+            }
+        },
+        "layout-mode": {
+            "name": "Layout mode",
+            "description": "Hides all decoration and shows the level in plain colors: white objects, default blue background and ground. Only changes what you see, the gameplay stays the same. After turning it off, restart the level to get all colors back.",
+            "type": "bool",
+            "default": false
+        },
+        "watermark-position": {
+            "name": "Watermark position",
+            "description": "Where \"Razy's Counter\" is shown while recording, analysing or playing back.",
+            "type": "string",
+            "default": "Top center",
+            "one-of": [
+                "Top center",
+                "Bottom right"
+            ]
+        },
+        "overview-only-seen": {
+            "name": "Overview: only sizes that occurred",
+            "description": "The overview starts empty and only shows a window size once it actually came up during playback.",
+            "type": "bool",
+            "default": false
+        },
+        "max-window": {
+            "name": "Largest window shown",
+            "description": "Windows up to this size get a ring, a number and a row in the overview. Above 10, the overview groups them in steps of five (11-15, 16-20, ...). Higher values make the analysis slower, because it has to measure further. Analyse again after raising it.",
+            "type": "int",
+            "default": 10,
+            "min": 10,
+            "max": 30,
+            "control": {
+                "slider": true
+            }
+        },
+        "hidden-windows": {
+            "name": "Hidden window sizes",
+            "description": "Window sizes that are not shown at all - no ring, no sound, no row in the overview. Examples: '1' hides 1-frames, '1-3' hides 1 to 3, '1, 20-30' hides 1 and 20 to 30. Leave empty to show everything.",
+            "type": "string",
+            "default": ""
+        },
+        "sound-enabled": {
+            "name": "Sound on every click",
+            "description": "A short tone per click. The tighter the window, the lower the tone.",
+            "type": "bool",
+            "default": true
+        },
+        "sound-other": {
+            "name": "Click sound",
+            "description": "The tone for normal clicks - the tighter the window, the lower it plays. Classic Frame Window is the classic frame window ding (built in - put your own classic.wav into the 'sounds' folder to replace it). Ding is the built-in bright tone, GD Classic is GD's own counter003.",
+            "type": "string",
+            "default": "Classic Frame Window",
+            "one-of": [
+                "Classic Frame Window",
+                "Ding",
+                "GD Classic"
+            ]
+        },
+        "sound-tight": {
+            "name": "Sound for the tightest clicks",
+            "description": "A separate sound for the tightest clicks. Bell is built in: one bell for 1 frame, another for 2 frames (replace them with your own bell-1.wav / bell-2.wav in the 'sounds' folder). Boom is a built-in deep hit. 'Same as other clicks' turns the special sound off.",
+            "type": "string",
+            "default": "Bell",
+            "one-of": [
+                "Bell",
+                "Boom",
+                "Same as other clicks"
+            ]
+        },
+        "tight-max": {
+            "name": "Tightest clicks up to",
+            "description": "Up to which window size the special sound plays. With Bell, 1 frame uses bell-1 and everything above uses bell-2.",
+            "type": "int",
+            "default": 2,
+            "min": 1,
+            "max": 5,
+            "control": {
+                "slider": true
+            }
+        },
+        "sound-max": {
+            "name": "Sound up to window size",
+            "description": "Larger windows stay silent. At 30, every window you see also gets a sound - the looser the click, the higher the tone.",
+            "type": "int",
+            "default": 30,
+            "min": 1,
+            "max": 30,
+            "control": {
+                "slider": true
+            }
+        },
+        "sound-1": {
+            "name": "Sound for 1 frame",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-1-file": {
+            "name": "Custom file for 1 frame",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-2": {
+            "name": "Sound for 2 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-2-file": {
+            "name": "Custom file for 2 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-3": {
+            "name": "Sound for 3 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-3-file": {
+            "name": "Custom file for 3 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-4": {
+            "name": "Sound for 4 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-4-file": {
+            "name": "Custom file for 4 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-5": {
+            "name": "Sound for 5 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-5-file": {
+            "name": "Custom file for 5 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-6": {
+            "name": "Sound for 6 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-6-file": {
+            "name": "Custom file for 6 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-7": {
+            "name": "Sound for 7 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-7-file": {
+            "name": "Custom file for 7 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-8": {
+            "name": "Sound for 8 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-8-file": {
+            "name": "Custom file for 8 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-9": {
+            "name": "Sound for 9 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-9-file": {
+            "name": "Custom file for 9 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-10": {
+            "name": "Sound for 10 frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-10-file": {
+            "name": "Custom file for 10 frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        },
+        "sound-11plus": {
+            "name": "Sound for 11+ frames",
+            "description": "Pick a sound just for this window size. Automatic uses the normal sound settings above. Bell 1, Bell 2 and Classic use your own files from the 'sounds' folder. Custom file plays the file you pick right below. None stays silent.",
+            "type": "string",
+            "default": "Automatic",
+            "one-of": [
+                "Automatic",
+                "Bell 1",
+                "Bell 2",
+                "Classic",
+                "Ding",
+                "Boom",
+                "GD Classic",
+                "Custom file",
+                "None"
+            ]
+        },
+        "sound-11plus-file": {
+            "name": "Custom file for 11+ frames",
+            "description": "Your own sound file (.wav, .mp3 or .ogg). Used when the setting above is 'Custom file'. WAV starts fastest.",
+            "type": "file",
+            "default": "",
+            "control": {
+                "dialog": "open",
+                "filters": [
+                    {
+                        "files": [
+                            "*.wav",
+                            "*.mp3",
+                            "*.ogg"
+                        ],
+                        "description": "Sound files"
+                    }
+                ]
+            }
+        }
+    }
+}
